@@ -23,6 +23,8 @@ router.get("/clients/:clientId/timeline", async (req, res): Promise<void> => {
       id: e.id,
       clientId: e.clientId,
       type: e.type,
+      entityType: e.entityType,
+      entityId: e.entityId ?? null,
       description: e.description,
       occurredAt: e.createdAt.toISOString(),
     })),

@@ -1,4 +1,5 @@
 import { useGetClient, useListProjects, useListPayments, useListDocuments, useCreateDocument, useListNotes, useCreateNote, useUpdateClient, useCreateProject, useCreatePayment, getGetClientQueryKey, getListProjectsQueryKey, getListPaymentsQueryKey, getListDocumentsQueryKey, getListNotesQueryKey, type ClientInputStatus, type ProjectInputStatus, type ProjectInputPriority, type PaymentInputStatus, type DocumentInputType } from "@workspace/api-client-react";
+import { ClientHistory } from "@/components/client-history";
 import { PageHeader } from "@/components/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -378,6 +379,7 @@ export default function ClientDetail() {
           <TabsTrigger value="payments" className="py-2 px-4">Payments</TabsTrigger>
           <TabsTrigger value="documents" className="py-2 px-4">Documents</TabsTrigger>
           <TabsTrigger value="notes" className="py-2 px-4">Notes</TabsTrigger>
+          <TabsTrigger value="history" className="py-2 px-4">History</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -619,6 +621,18 @@ export default function ClientDetail() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="m-0">
+            <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-xl p-6">
+              <div className="mb-6">
+                <h3 className="text-base font-semibold">Client History</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  A complete record of everything that's happened with this client.
+                </p>
+              </div>
+              <ClientHistory clientId={clientId} />
+            </div>
           </TabsContent>
 
           <TabsContent value="notes" className="m-0">

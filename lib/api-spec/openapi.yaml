@@ -1757,14 +1757,18 @@ components:
     # ─── Timeline ────────────────────────────────────────────────────────────
     TimelineEvent:
       type: object
-      required: [id, clientId, type, description, occurredAt]
+      required: [id, type, description, occurredAt]
       properties:
         id:
           type: integer
         clientId:
-          type: integer
+          type: ["integer", "null"]
         type:
           type: string
+        entityType:
+          type: string
+        entityId:
+          type: ["integer", "null"]
         description:
           type: string
         occurredAt:
