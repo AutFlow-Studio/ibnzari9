@@ -11,7 +11,7 @@ pnpm --filter @workspace/scripts run migrate   # creates all tables + admin user
 pnpm --filter @workspace/scripts run seed      # populates demo data
 ```
 
-Dev login: `admin@autflow.io` / `admin123`
+Dev login credentials are in `replit.md` (not stored here).
 
 ## Workflows (plain, not artifact-managed)
 

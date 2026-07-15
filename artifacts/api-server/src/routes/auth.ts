@@ -16,15 +16,21 @@ function sanitizeUser(u: typeof usersTable.$inferSelect): PublicUser {
   return rest;
 }
 
-/** Build the frontend base URL for reset links. */
-function getAppUrl(req: import("express").Request): string {
+/**
+ * Return the trusted frontend origin for password-reset links.
+ *
+ * Only uses values that are set at deployment time by the operator or the
+ * Replit platform — never request-derived headers. Using the Host header
+ * would allow an attacker to supply a malicious domain and receive the
+ * reset token in the emailed link.
+ *
+ * Returns null when no trusted origin is configured so the caller can
+ * skip email delivery rather than send a manipulable link.
+ */
+function getTrustedAppUrl(): string | null {
   if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-  // In Replit dev: REPLIT_DEV_DOMAIN is the proxied host
   if (process.env.REPLIT_DEV_DOMAIN) return `https://${process.env.REPLIT_DEV_DOMAIN}`;
-  // Fallback: derive from request host
-  const protocol = req.protocol;
-  const host = req.get("host") ?? "localhost";
-  return `${protocol}://${host}`;
+  return null;
 }
 
 // ── Login ─────────────────────────────────────────────────────────────────────
@@ -273,7 +279,16 @@ router.post(
         expiresAt,
       });
 
-      const appUrl = getAppUrl(req);
+      const appUrl = getTrustedAppUrl();
+      if (!appUrl) {
+        console.warn(
+          "[forgot-password] No trusted app URL configured (set APP_URL or ensure REPLIT_DEV_DOMAIN is present). " +
+          "Reset email not sent to avoid sending an attacker-influenced link. " +
+          `Token for ${user.email}: ${token}`
+        );
+        return;
+      }
+
       const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
       await sendPasswordResetEmail({
