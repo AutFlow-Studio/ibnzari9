@@ -208,6 +208,24 @@ async function migrate() {
       )
     `);
 
+    // Password reset tokens table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id         SERIAL PRIMARY KEY,
+        user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token      TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMPTZ NOT NULL,
+        used_at    TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens (token)
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens (user_id)
+    `);
+
     // Sessions table for connect-pg-simple.
     // createTableIfMissing: true is intentionally NOT used — esbuild strips
     // the bundled table.sql at build time, so this script creates it instead.

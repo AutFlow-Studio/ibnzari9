@@ -10,3 +10,4 @@ export * from "./activity";
 export * from "./users";
 export * from "./settings";
 export * from "./notifications";
+export * from "./password-reset-tokens";

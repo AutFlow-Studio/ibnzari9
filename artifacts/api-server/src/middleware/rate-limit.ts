@@ -17,3 +17,19 @@ export const loginRateLimiter = rateLimit({
   },
   statusCode: 429,
 });
+
+/**
+ * Rate limiter for the forgot-password endpoint.
+ * Allows up to 5 requests per IP per 15-minute window.
+ * Prevents email bombing and token-generation abuse.
+ */
+export const forgotPasswordRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error: "Too many password reset requests. Please wait 15 minutes before trying again.",
+  },
+  statusCode: 429,
+});

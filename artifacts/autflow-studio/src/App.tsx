@@ -2,13 +2,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AgencyProfileProvider } from '@/components/agency-profile-provider';
 import { AuthProvider, useAuth } from '@/components/auth-provider';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Layout } from '@/components/layout';
 import LoginPage from '@/pages/login/index';
+import ForgotPasswordPage from '@/pages/forgot-password/index';
+import ResetPasswordPage from '@/pages/reset-password/index';
 
 import Dashboard from '@/pages/dashboard';
 import ClientsList from '@/pages/clients/index';
@@ -60,6 +62,11 @@ function Router() {
 
 function AuthGate() {
   const { user, loading } = useAuth();
+  const [location] = useLocation();
+
+  // Public password-reset pages — always accessible, no auth required
+  if (location === '/forgot-password') return <ForgotPasswordPage />;
+  if (location.startsWith('/reset-password')) return <ResetPasswordPage />;
 
   if (loading) {
     return (

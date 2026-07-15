@@ -13,6 +13,13 @@ pnpm --filter @workspace/scripts run seed      # populates demo data
 
 Dev login: `admin@autflow.io` / `admin123`
 
+## Workflows (plain, not artifact-managed)
+
+- `API Server`: `PORT=8080 pnpm --filter @workspace/api-server run dev`
+- `AutFlow Studio`: `PORT=22583 BASE_PATH=/ pnpm --filter @workspace/autflow-studio run dev`
+
+Both artifacts have `.replit-artifact/artifact.toml` but are NOT registered as Replit artifact services — use `configureWorkflow` if workflows need recreating.
+
 ## Object Storage
 
 - Bucket provisioned via `setupObjectStorage()` — sets `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS`, `DEFAULT_OBJECT_STORAGE_BUCKET_ID`
@@ -46,6 +53,16 @@ Dev login: `admin@autflow.io` / `admin123`
 
 **Document delete**: Previously used `window.confirm` — now uses a proper AlertDialog with context-sensitive message (file upload vs link).
 
+## Password reset flow
+
+- `POST /api/auth/forgot-password` — rate-limited (5/15min), always 200 (no enumeration), fire-and-forget email send
+- `GET /api/auth/reset-password/validate?token=` — validates without consuming token
+- `POST /api/auth/reset-password` — verifies + consumes token, hashes new password, cleans unused tokens
+- Token: `crypto.randomBytes(32).toString("hex")`, 1-hour TTL, stored in `password_reset_tokens` table
+- Email: Resend SDK (`resend` package installed). Reads `RESEND_API_KEY` + `FROM_EMAIL` env vars. Falls back to console log if key not set.
+- Frontend pages: `/forgot-password` and `/reset-password?token=` — public (no auth), routed inside AuthGate via `useLocation`
+- Login page has "Forgot password?" link above the password field
+
 ## Known bugs fixed
 
 1. **`clients/detail.tsx` document links** (BUG): Fixed — file-backed docs now route through `/api/storage${objectPath}` instead of raw `doc.url`.
@@ -74,9 +91,9 @@ Dev login: `admin@autflow.io` / `admin123`
 - `setBaseUrl()` is available for Expo/non-browser clients
 - The generated `useResetDemoData` hook sends no body — call `fetch("/api/admin/reset", ...)` directly if you need to pass `confirmationPhrase`
 
-## DB schema (13 tables)
+## DB schema (14 tables)
 
-clients, projects, deliverables, payments, documents, meetings, notes, tasks, activity, users, sessions, agency_settings, notifications
+clients, projects, deliverables, payments, documents, meetings, notes, tasks, activity, users, sessions, agency_settings, notifications, password_reset_tokens
 
 ## pnpm workspace packages
 
